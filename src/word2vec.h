@@ -22,7 +22,7 @@
 #include "Rmath.h"
 
 
-#define MAX_STRING 100
+#define MAX_STRING 1024
 #define EXP_TABLE_SIZE 1000
 #define MAX_EXP 6
 #define MAX_SENTENCE_LENGTH 1000
@@ -39,12 +39,13 @@ struct vocab_word {
 };
 
 char train_file[1024], output_file[1024];
+char dumpcv_file[MAX_STRING];
 char save_vocab_file[MAX_STRING], read_vocab_file[MAX_STRING];
 struct vocab_word *vocab;
 int binary = 0, cbow = 0, debug_mode = 2, window = 12, min_count = 5, num_threads = 1, min_reduce = 1;
 int *vocab_hash;
 long long vocab_max_size = 1000, vocab_size = 0, layer1_size = 100;
-long long train_words = 0, word_count_actual = 0, iter = 5, file_size = 0, classes = 0;
+long long train_words = 0, word_count_actual = 0, iter = 5, file_size = 0, classes = 0, dumpcv = 0;
 real alpha = 0.025, starting_alpha, sample = 0;
 real *syn0, *syn1, *syn1neg, *expTable;
 clock_t start;
@@ -568,6 +569,7 @@ void *TrainModelThread(void *id) {
 void TrainModel() {
   long a, b, c, d;
   FILE *fo;
+  FILE *fo2;
   pthread_t *pt = (pthread_t *)malloc(num_threads * sizeof(pthread_t));
   Rprintf("Starting training using file %s\n", train_file);
   starting_alpha = alpha;
@@ -580,14 +582,22 @@ void TrainModel() {
   for (a = 0; a < num_threads; a++) pthread_create(&pt[a], NULL, TrainModelThread, (void *)a);
   for (a = 0; a < num_threads; a++) pthread_join(pt[a], NULL);
   fo = fopen(output_file, "wb");
+  if (dumpcv_file[0] != 0) fo2 = fopen(dumpcv_file, "wb");
   if (classes == 0) {
     // Save the word vectors
     fprintf(fo, "%lld %lld\n", vocab_size, layer1_size);
+    if (dumpcv_file[0] != 0) fprintf(fo2, "%lld %lld\n", vocab_size, layer1_size);
     for (a = 0; a < vocab_size; a++) {
       fprintf(fo, "%s ", vocab[a].word);
       if (binary) for (b = 0; b < layer1_size; b++) fwrite(&syn0[a * layer1_size + b], sizeof(real), 1, fo);
       else for (b = 0; b < layer1_size; b++) fprintf(fo, "%lf ", syn0[a * layer1_size + b]);
       fprintf(fo, "\n");
+      if (dumpcv_file[0] != 0) {
+         fprintf(fo2, "%s ", vocab[a].word);
+         if (binary) for (b = 0; b < layer1_size; b++) fwrite(&syn1neg[a * layer1_size + b], sizeof(real), 1, fo2);
+         else for (b = 0; b < layer1_size; b++) fprintf(fo2, "%lf ", syn1neg[a * layer1_size + b]);
+         fprintf(fo2, "\n");
+      }
     }
   } else {
     // Run K-means on the word vectors

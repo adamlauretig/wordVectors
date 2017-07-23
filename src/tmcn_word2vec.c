@@ -2,10 +2,10 @@
 #include "Rmath.h"
 #include "word2vec.h"
 
-void tmcn_word2vec(char *train_file0, char *output_file0,
+void tmcn_word2vec(char *train_file0, char *output_file0, char *dumpcv_file0,
                    char *binary0, char *dims0, char *threads,
                    char *window0, char *classes0, char *cbow0,
-                   char *min_count0, char *iter0, char *neg_samples0)
+                   char *min_count0, char *iter0, char *neg_samples0, char *dumpcv0)
 {
 	int i;
   layer1_size = atoll(dims0);
@@ -13,12 +13,15 @@ void tmcn_word2vec(char *train_file0, char *output_file0,
   window=atoi(window0);
 	binary = atoi(binary0);
 	classes = atoi(classes0);
-	cbow = atoi(cbow0);
+	cbow = atoi(cbow0);	
+	dumpcv = atoi(dumpcv0);
 	min_count = atoi(min_count0);
 	iter = atoll(iter0);
 	negative = atoi(neg_samples0);
+	
 	strcpy(train_file, train_file0);
 	strcpy(output_file, output_file0);
+	strcpy(dumpcv_file, dumpcv_file0);
 
 
 	alpha = 0.025;
@@ -36,10 +39,10 @@ void tmcn_word2vec(char *train_file0, char *output_file0,
 }
 
 
-void CWrapper_word2vec(char **train_file, char **output_file,
+void CWrapper_word2vec(char **train_file, char **output_file, char **dumpcv_file,
                        char **binary, char **dims, char **threads,
-                       char **window, char **classes, char **cbow, char **min_count, char **iter, char **neg_samples)
+                       char **window, char **classes, char **cbow, char **min_count, char **iter, char **neg_samples, char **dumpcv)
 {
-    tmcn_word2vec(*train_file, *output_file, *binary, *dims, *threads,*window,*classes,*cbow,*min_count,*iter, *neg_samples);
+    tmcn_word2vec(*train_file, *output_file, *dumpcv_file, *binary, *dims, *threads,*window,*classes,*cbow,*min_count,*iter, *neg_samples, *dumpcv);
 }
 
