@@ -77,14 +77,22 @@ train_word2vec_dumpcv <- function(train_file, output_file = "vectors.bin",vector
             dumpcv=as.character(dumpcv)
             
   )
-
+  if(binary == 1){
   vectors <- wordVectors::read.vectors(output_file)
-  # contexts <- wordVectors::read.vectors(dumpcv_file)
-  # list(vectors, contexts)
+  contexts <- wordVectors::read.binary.vectors(dumpcv_file)
+  }else{
+  v_size <- file.info(output_file)$size
+  vectors <-  readChar(output_file, v_size)
+  c_size <- file.info(dumpcv_file)$size
+  contexts <-  readChar(dumpcv_file, c_size)
+  }
+  list(vectors, contexts)
 }
+
 test <- train_word2vec_dumpcv(train_file = "~/cookbooks.txt",
   output_file = "~/cookbook_vectors.txt",vectors=20,
-  threads=4,window=5,iter=5,negative_samples=5, dumpcv = 1, 
+  threads=4,window=5,iter=3,negative_samples=5, dumpcv = 1, 
   dumpcv_file = "~/cv.txt", force = TRUE)
 
-
+words<- test[[1]]
+contexts <- test[[2]]
