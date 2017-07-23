@@ -33,7 +33,7 @@
 ##' model = train_word2vec(system.file("examples", "rfaq.txt", package = "wordVectors"))
 ##' }
 
-dyn.load("~/data/wordVectors/src/tmcn_word2vec.so")
+dyn.load("~/data/wordVectors_dump/src/tmcn_word2vec.so")
 
 train_word2vec_dumpcv <- function(train_file, output_file = "vectors.bin",vectors=100,threads=1,window=12,
   classes=0,cbow=0,min_count=5,iter=5,force=F, negative_samples=5, dumpcv = 1, dumpcv_file = "cv.bin")
@@ -59,9 +59,9 @@ train_word2vec_dumpcv <- function(train_file, output_file = "vectors.bin",vector
   output_file <- normalizePath(output_file, winslash = "/", mustWork = FALSE)
   dumpcv_file <- normalizePath(dumpcv_file, winslash = "/", mustWork = FALSE)
   # Whether to output binary, default is 1 means binary.
-  binary = 1
+  binary = 0
 
-  OUT <- .Call("CWrapper_word2vec",
+  OUT <- .C("CWrapper_word2vec",
             train_file = as.character(train_file),
             output_file = as.character(output_file),
             dumpcv_file = as.character(dumpcv_file),
@@ -79,12 +79,12 @@ train_word2vec_dumpcv <- function(train_file, output_file = "vectors.bin",vector
   )
 
   vectors <- wordVectors::read.vectors(output_file)
-  contexts <- wordVectors::read.vectors(dumpcv_file)
-  list(vectors, contexts)
+  # contexts <- wordVectors::read.vectors(dumpcv_file)
+  # list(vectors, contexts)
 }
 test <- train_word2vec_dumpcv(train_file = "~/cookbooks.txt",
-  output_file = "~/cookbook_vectors.bin",vectors=20,
+  output_file = "~/cookbook_vectors.txt",vectors=20,
   threads=4,window=5,iter=5,negative_samples=5, dumpcv = 1, 
-  dumpcv_file = "~/cv.bin")
+  dumpcv_file = "~/cv.txt", force = TRUE)
 
 
