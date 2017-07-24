@@ -79,20 +79,53 @@ train_word2vec_dumpcv <- function(train_file, output_file = "vectors.bin",vector
   )
   if(binary == 1){
   vectors <- wordVectors::read.vectors(output_file)
-  contexts <- wordVectors::read.binary.vectors(dumpcv_file)
+  contexts <- wordVectors::read.vectors(dumpcv_file, vectors = 20)
   }else{
   v_size <- file.info(output_file)$size
-  vectors <-  readChar(output_file, v_size)
+  vectors_raw <-  readChar(output_file, v_size)
+  words_char <- vectors_raw
+  words_lines <- unlist(strsplit(words_char, "\n"))
+  words_dim <- as.integer(unlist(strsplit(words_lines[1], " ")))
+  vec_vals <- strsplit(words_lines[2:length(words_lines)], " ")
+  vec_mat <-do.call(rbind, vec_vals)
+  rownames(vec_mat) <- vec_mat[,1]
+  vec_mat <- vec_mat[,2:(words_dim[2]+1)]
+  vectors <- wordVectors::as.VectorSpaceModel(vec_mat)
+
   c_size <- file.info(dumpcv_file)$size
-  contexts <-  readChar(dumpcv_file, c_size)
+  contexts_raw <-  readChar(dumpcv_file, c_size)
+  contexts_char <- contexts_raw
+  contexts_lines <- unlist(strsplit(contexts_char, "\n"))
+  contexts_dim <- as.integer(unlist(strsplit(contexts_lines[1], " ")))
+  contexts_vals <- strsplit(contexts_lines[2:length(contexts_lines)], " ")
+  
+  lapply(contexts_vals, any, contexts_dim[2] + 1)
+  <- sapply(contexts_vals, any, contexts_dim[2] + 1)
+  contexts_vals <- contexts_vals[length(contexts_vals) == (contexts_dim[2] + 1)]
+  contexts_mat <-do.call(rbind, contexts_vals)
+  rownames(contexts_mat) <- contexts_mat[,1]
+  contexts_mat <- contexts_mat[,2:(contexts_dim[2]+1)]
+  contexts <- wordVectors::as.VectorSpaceModel(contexts_mat)
   }
+  overlap <- rownames(vectors) %in% rownames(contexts)
+  vectors <- vectors[overlap, ]
   list(vectors, contexts)
 }
 
 test <- train_word2vec_dumpcv(train_file = "~/cookbooks.txt",
   output_file = "~/cookbook_vectors.txt",vectors=20,
-  threads=4,window=5,iter=3,negative_samples=5, dumpcv = 1, 
+  threads=4,window=5,iter=5,negative_samples=5, dumpcv = 1, 
   dumpcv_file = "~/cv.txt", force = TRUE)
 
-words<- test[[1]]
+words_char <- test[[1]]
+words_lines <- unlist(strsplit(words_char, "\n"))
+words_dim <- as.integer(unlist(strsplit(words_lines[1], " ")))
+vec_vals <- strsplit(words_lines[2:length(words_lines)], " ")
+vec_mat <-do.call(rbind, vec_vals)
+rownames(vec_mat) <- vec_mat[,1]
+vec_mat <- vec_mat[,2:(words_dim[2]+1)]
+vectors <- wordVectors::as.VectorSpaceModel(vec_mat)
 contexts <- test[[2]]
+
+
+t <- wordVectors::read.vectors( "~/cv.bin")
