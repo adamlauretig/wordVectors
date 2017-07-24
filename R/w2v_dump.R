@@ -60,7 +60,8 @@ train_word2vec_dumpcv <- function(train_file, output_file = "vectors.bin",vector
   dumpcv_file <- normalizePath(dumpcv_file, winslash = "/", mustWork = FALSE)
   # Whether to output binary, default is 1 means binary.
   binary = 0
-
+  # editing the .h file w/Goldberg's mod to w2v, so that we get contexts
+  # source: https://github.com/BIU-NLP/word2vecf/blob/master/word2vec.c
   OUT <- .C("CWrapper_word2vec",
             train_file = as.character(train_file),
             output_file = as.character(output_file),
@@ -121,18 +122,9 @@ test <- train_word2vec_dumpcv(train_file = "~/cookbooks.txt",
   dumpcv_file = "~/cv.txt", force = TRUE)
 
 
-words <- test[[1]]
-words2 <- matrix(as.numeric(test[[1]]), nrow = dim(test[[1]])[1], 
-  ncol = dim(test[[1]])[2])
-rownames(words2) <- rownames(words)
+words <- wordVectors::normalize_lengths(test[[1]])
+contexts <- wordVectors::normalize_lengths(test[[2]])
+probs_mat <- words %*% t(contexts)
+probs_mat[500:510, 500:510]
+probs_vec <- words[1,] %*% t(contexts)
 
-contexts <- test[[2]]
-contexts2 <- matrix(test[[2]], nrow = dim(test[[2]])[1], 
-  ncol = dim(test[[2]])[2])
-rownames(contexts2) <- rownames(contexts)
-
-contexts <- wordVectors::read.vectors(dumpcv_file, vectors = 20)
-dumpcv_file <- "~/cv.bin"
-
-
-probs_mat <- words2 %*% contexts2
