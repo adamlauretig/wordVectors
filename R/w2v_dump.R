@@ -115,16 +115,16 @@ train_word2vec_dumpcv <- function(train_file, output_file = "vectors.bin",vector
   vectors <- vectors[overlap,]
   list(vectors, contexts)
 }
-
-test <- train_word2vec_dumpcv(train_file = "~/cookbooks.txt",
-  output_file = "~/cookbook_vectors.txt",vectors=20,
-  threads=4,window=5,iter=3,negative_samples=5, dumpcv = 1, 
-  dumpcv_file = "~/cv.txt", force = TRUE)
-
-
-words <- wordVectors::normalize_lengths(test[[1]])
-contexts <- wordVectors::normalize_lengths(test[[2]])
-probs_mat <- words %*% t(contexts)
-probs_mat[500:510, 500:510]
-probs_vec <- words[1,] %*% t(contexts)
+# 
+# test <- train_word2vec_dumpcv(train_file = "~/cookbooks.txt",
+#   output_file = "~/cookbook_vectors.txt",vectors=20,
+#   threads=4,window=5,iter=3,negative_samples=5, dumpcv = 1, 
+#   dumpcv_file = "~/cv.txt", force = TRUE)
+# 
+# 
+# words <- wordVectors::normalize_lengths(test[[1]])
+# contexts <- wordVectors::normalize_lengths(test[[2]])
+# probs_mat <- words %*% t(contexts)
+# probs_mat[500:510, 500:510]
+# probs_vec <- words[1,] %*% t(contexts)
 
