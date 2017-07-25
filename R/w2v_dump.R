@@ -1,37 +1,7 @@
-##' Dump context too
-##'
-##' Given words, run w2v, keep context
-##'
-##'
-##'
-##' @title Train a model by word2vec.
-##' @param train_file Path of a single .txt file for training. Tokens are split on spaces.
-##' @param output_file Path of the output file.
-##' @param vectors The number of vectors to output. Defaults to 100.
-##' More vectors usually means more precision, but also more random error, higher memory usage, and slower operations.
-##' Sensible choices are probably in the range 100-500.
-##' @param threads Number of threads to run training process on.
-##' Defaults to 1; up to the number of (virtual) cores on your machine may speed things up.
-##' @param window The size of the window (in words) to use in training.
-##' @param classes Number of classes for k-means clustering. Not documented/tested.
-##' @param cbow If 1, use a continuous-bag-of-words model instead of skip-grams.
-##' Defaults to false (recommended for newcomers).
-##' @param min_count Minimum times a word must appear to be included in the samples.
-##' High values help reduce model size.
-##' @param iter Number of passes to make over the corpus in training.
-##' @param force Whether to overwrite existing model files.
-##' @param negative_samples Number of negative samples to take in skip-gram training. 0 means full sampling, while lower numbers
-##' give faster training. For large corpora 2-5 may work; for smaller corpora, 5-15 is reasonable.
-##' @return A VectorSpaceModel object.
-##' @author Jian Li <\email{rweibo@@sina.com}>, Ben Schmidt <\email{bmchmidt@@gmail.com}>
-##' @references \url{https://code.google.com/p/word2vec/}
-##' @export
-##'
-##' @useDynLib wordVectors
-##'
-##' @examples \dontrun{
-##' model = train_word2vec(system.file("examples", "rfaq.txt", package = "wordVectors"))
-##' }
+# Word2vec which will also dump context
+# 
+
+# run in terminal R CMD SHLIB ~/data/wordVectors/src/tmcn_word2vec.c
 
 dyn.load("~/data/wordVectors_dump/src/tmcn_word2vec.so")
 
